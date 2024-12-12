@@ -5,23 +5,26 @@ import { QuestionCard } from './QuestionCard';
 interface QuestionListProps {
   isAdmin?: boolean;
   roomId: string;
+  address: string;
 }
 
-export function QuestionList({ isAdmin = false, roomId }: QuestionListProps) {
+export function QuestionList({ isAdmin = false, roomId, address }: QuestionListProps) {
   const questions = useQuestionStore((state) => state.questions);
 
-  const sortedQuestions = [...questions].sort((a, b) => {
-    // Sort by answered status (unanswered first)
-    if (a.isAnswered !== b.isAnswered) {
-      return a.isAnswered ? 1 : -1;
-    }
-    // Then by votes (highest first)
-    if (a.votes !== b.votes) {
-      return b.votes - a.votes;
-    }
-    // Finally by timestamp (newest first)
-    return b.createDate < a.createDate ? 1 : -1;
-  });
+  const sortedQuestions = [...questions]
+    .filter(x => x.content !== "!!!DELETED!!!")
+    .sort((a, b) => {
+      // Sort by answered status (unanswered first)
+      if (a.isAnswered !== b.isAnswered) {
+        return a.isAnswered ? 1 : -1;
+      }
+      // Then by votes (highest first)
+      if (a.votes !== b.votes) {
+        return b.votes - a.votes;
+      }
+      // Finally by timestamp (newest first)
+      return b.createDate < a.createDate ? 1 : -1;
+    });
 
   return (
     <div className="w-full max-w-2xl space-y-4">
@@ -31,6 +34,7 @@ export function QuestionList({ isAdmin = false, roomId }: QuestionListProps) {
           question={question}
           isAdmin={isAdmin}
           roomId={roomId}
+          address={address}
         />
       ))}
       {questions.length === 0 && (

@@ -29,6 +29,8 @@ interface QuestionStore {
     isUpvote: boolean
   ) => Promise<void>;
   toggleAnswered: (roomId: string, questionId: number) => Promise<void>;
+  editQuestion: (roomId: string, questionId: number, content: string) => Promise<void>;
+  deleteQuestion: (roomId: string, questionId: number) => Promise<void>;
 }
 
 export const useQuestionStore = create<QuestionStore>((set, get) => ({
@@ -132,6 +134,7 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
   },
 
   toggleAnswered: async (roomId: string, questionId: number) => {
+    set({ isLoading: true });
     try {
       const hash = await writeContract(config, {
         address: ROOM_MANAGER_ADDRESS,
@@ -151,7 +154,57 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
       await get().fetchQuestions(roomId);
     } catch (error) {
       console.error('Failed to toggle question status:', error);
-      set({ error: 'Failed to update question status' });
+      set({ isLoading: false, error: 'Failed to update question status' });
+    }
+  },
+
+  editQuestion: async (roomId: string, questionId: number, content: string) => {
+    set({ isLoading: true });
+    try {
+      const hash = await writeContract(config, {
+        address: ROOM_MANAGER_ADDRESS,
+        abi: ROOM_MANAGER_ABI,
+        functionName: 'editQuestion',
+        args: [roomId as `0x${string}`, BigInt(questionId), content],
+        paymaster: ROOM_MANAGER_PAYMASTER_ADDRESS,
+        paymasterInput: getGeneralPaymasterInput({ innerInput: '0x' }),
+      });
+
+      const receipt = await waitForTransactionReceipt(config, { hash });
+      if (receipt.status === 'reverted') {
+        throw new Error('Transaction reverted');
+      }
+
+      // Refresh questions after toggling status
+      await get().fetchQuestions(roomId);
+    } catch (error) {
+      console.error('Failed to update question:', error);
+      set({ isLoading: false, error: 'Failed to update question' });
+    }
+  },
+
+  deleteQuestion: async (roomId: string, questionId: number) => {
+    set({ isLoading: true });
+    try {
+      const hash = await writeContract(config, {
+        address: ROOM_MANAGER_ADDRESS,
+        abi: ROOM_MANAGER_ABI,
+        functionName: 'deleteQuestion',
+        args: [roomId as `0x${string}`, BigInt(questionId)],
+        paymaster: ROOM_MANAGER_PAYMASTER_ADDRESS,
+        paymasterInput: getGeneralPaymasterInput({ innerInput: '0x' }),
+      });
+
+      const receipt = await waitForTransactionReceipt(config, { hash });
+      if (receipt.status === 'reverted') {
+        throw new Error('Transaction reverted');
+      }
+
+      // Refresh questions after toggling status
+      await get().fetchQuestions(roomId);
+    } catch (error) {
+      console.error('Failed to delete question:', error);
+      set({ isLoading: false, error: 'Failed to delete question' });
     }
   },
 }));

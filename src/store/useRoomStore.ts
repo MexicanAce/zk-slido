@@ -71,7 +71,6 @@ export const useRoomStore = create<RoomStore>((set) => ({
     if (!address || !roomId) return;
 
     try {
-      console.log(`checkin' admin of room ${roomId} for user ${address}`);
       const isAdmin = await readContract(config, {
         address: ROOM_MANAGER_ADDRESS as Address,
         abi: ROOM_MANAGER_ABI,

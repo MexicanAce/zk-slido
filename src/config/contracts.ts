@@ -3,7 +3,7 @@ import { type Address } from 'viem';
 export const ROOM_MANAGER_ADDRESS =
   '0x462057041505219a9f4b2F4dAC794023b2a4205a' as Address;
 export const ROOM_MANAGER_PAYMASTER_ADDRESS =
-  '0x0f5582812f156B003212Db360d93dCE8e3f84E3C' as Address;
+  '0x1F23dC88380cdc64Af4c019dB7d160AdFEFB10ed' as Address;
 
 export const ROOM_MANAGER_ABI = [
   {

@@ -52,7 +52,7 @@ export function RoomPage() {
           </div>
           <QuestionInput roomId={roomId} />
           {error && <div className="text-center text-red-600">{error}</div>}
-          <QuestionList isAdmin={isAdmin} roomId={roomId} />
+          <QuestionList isAdmin={isAdmin} roomId={roomId} address={address!} />
         </div>
       </main>
     </div>

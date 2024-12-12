@@ -29,8 +29,7 @@ export function QuestionInput({ roomId = undefined }: QuestionInputProps) {
           onChange={(e) => setQuestion(e.target.value)}
           onKeyDown={(e) => {
             if (e.key == 'Enter' && !e.shiftKey) {
-              // TODO: Enable submit on Enter when users can delete/edit questions they authored
-              // handleSubmit(e);
+              handleSubmit(e);
             }
           }}
           disabled={isLoading}
