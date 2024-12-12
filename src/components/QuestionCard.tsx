@@ -67,11 +67,9 @@ export function QuestionCard({
           <button
             onClick={() => vote(roomId, +question.id, true)}
             disabled={question.isAnswered}
-            className={`p-1 hover:text-blue-500 transition-colors disabled:text-gray-300 disabled:cursor-not-allowed ${
-              question.isUpvoted ? 'text-blue-500' : ''
-            }`}
+            className={`p-1 hover:text-blue-500 transition-colors disabled:text-gray-300 disabled:cursor-not-allowed`}
           >
-            <ThumbsUp size={18} />
+            <ThumbsUp size={18} className={`${question.isUpvoted ? 'fill-blue-500' : ''}`}/>
           </button>
           <span
             className={`min-w-[2rem] text-center font-medium ${
@@ -83,11 +81,9 @@ export function QuestionCard({
           <button
             onClick={() => vote(roomId, +question.id, false)}
             disabled={question.isAnswered}
-            className={`p-1 hover:text-red-500 transition-colors disabled:text-gray-300 disabled:cursor-not-allowed ${
-              question.isDownvoted ? 'text-red-500' : ''
-            }`}
+            className={`p-1 hover:text-red-500 transition-colors disabled:text-gray-300 disabled:cursor-not-allowed`}
           >
-            <ThumbsDown size={18} />
+            <ThumbsDown size={18} className={`${question.isDownvoted ? 'fill-red-500' : ''}`} />
           </button>
           {isAdmin && (
             <button
