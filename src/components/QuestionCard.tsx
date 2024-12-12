@@ -110,7 +110,7 @@ export function QuestionCard({
             {(isAdmin || question.authorId == address) && (
               <button
                 onClick={() => deleteQuestion(roomId, +question.id)}
-                disabled={!isAdmin}
+                disabled={question.isAnswered && !isAdmin}
                 className="p-1 transition-colors text-gray-400 hover:text-red-500 disabled:cursor-not-allowed">
                 <Trash size={18} />
               </button>
