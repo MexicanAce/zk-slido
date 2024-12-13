@@ -30,7 +30,7 @@ export function RoomPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header title="Q&A Room" onLoginClick={async () => {await connect(); }} />
+      <Header title="Q&A Platform" onLoginClick={async () => {await connect(); }} />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex flex-col items-center gap-8">
