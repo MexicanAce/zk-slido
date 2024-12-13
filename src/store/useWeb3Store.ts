@@ -25,7 +25,7 @@ const connector = zksyncSsoConnector({
     icon: 'https://www.svgrepo.com/show/347317/question-answer.svg',
   },
   session: {
-    feeLimit: parseEther('0.0001'),
+    feeLimit: parseEther('0.001'),
     contractCalls: [
       callPolicy({
         address: ROOM_MANAGER_ADDRESS,
