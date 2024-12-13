@@ -21,6 +21,8 @@ interface QuestionStore {
   isLoading: boolean;
   error: string | null;
   userAddress: string;
+  updateQuestions: (questions: Question[]) => void;
+  updateNewQuestion: (question: Question) => void;
   fetchQuestions: (roomId: string, address?: string) => Promise<void>;
   addQuestion: (roomId: string, content: string) => Promise<void>;
   vote: (
@@ -38,6 +40,16 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
   isLoading: false,
   error: null,
   userAddress: '0x',
+
+  updateQuestions: (updatedQuestions: Question[]) => {
+    set({ questions: updatedQuestions});
+  },
+
+  updateNewQuestion: (newQuestion: Question) => {
+    const newQuestions = get().questions;
+    newQuestions.push(newQuestion)
+    set({ questions: newQuestions});
+  },
 
   fetchQuestions: async (
     roomId: string,

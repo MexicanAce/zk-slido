@@ -9,8 +9,7 @@ interface QuestionInputProps {
 
 export function QuestionInput({ roomId = undefined }: QuestionInputProps) {
   const [question, setQuestion] = useState('');
-  const { isLoading } = useQuestions(roomId);
-  const addQuestion = useQuestionStore((state) => state.addQuestion);
+  const { isLoading, addQuestion } = useQuestionStore();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
