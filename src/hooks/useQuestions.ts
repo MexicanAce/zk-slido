@@ -1,13 +1,21 @@
-import { useEffect } from 'react';
-import { useQuestionStore } from '../store/useQuestionStore';
-import { useWeb3Store, config } from '../store/useWeb3Store';
-import { watchContractEvent } from 'viem/actions';
-import { ROOM_MANAGER_ABI, ROOM_MANAGER_ADDRESS } from '../config/contracts';
-import { getPublicClient } from '@wagmi/core';
-import { Question } from '../types/question';
+import { useEffect } from "react";
+import { useQuestionStore } from "../store/useQuestionStore";
+import { useWeb3Store, config } from "../store/useWeb3Store";
+import { watchContractEvent } from "viem/actions";
+import { ROOM_MANAGER_ABI, ROOM_MANAGER_ADDRESS } from "../config/contracts";
+import { getPublicClient } from "@wagmi/core";
+import { Question } from "../types/question";
 
 export function useQuestions(roomId: string | undefined) {
-  const { questions, updateQuestions, updateNewQuestion, fetchQuestions, isLoading, error } = useQuestionStore();
+  const {
+    questions,
+    updateQuestions,
+    updateNewQuestion,
+    updateVoteCount,
+    fetchQuestions,
+    isLoading,
+    error,
+  } = useQuestionStore();
   const { address } = useWeb3Store();
   const client = getPublicClient(config);
 
@@ -18,13 +26,15 @@ export function useQuestions(roomId: string | undefined) {
       const unwatchQuestionAdded = watchContractEvent(client, {
         address: ROOM_MANAGER_ADDRESS,
         abi: ROOM_MANAGER_ABI,
-        eventName: 'QuestionAdded',
+        eventName: "QuestionAdded",
         onLogs(logs) {
           logs
-            .filter(log => log.args.roomId === roomId)
-            .filter(log => log.args.author !== address)
-            .forEach(log => {
-              console.log(`Question ${log.args.questionId} has been added by ${log.args.author} with content: ${log.args.content}`);
+            .filter((log) => log.args.roomId === roomId)
+            .filter((log) => log.args.author !== address)
+            .forEach((log) => {
+              console.log(
+                `Question ${log.args.questionId} has been added by ${log.args.author} with content: ${log.args.content}`
+              );
               const newQuestion: Question = {
                 id: questions.length.toString(),
                 authorId: log.args.author!,
@@ -43,39 +53,40 @@ export function useQuestions(roomId: string | undefined) {
       const unwatchQuestionVoted = watchContractEvent(client, {
         address: ROOM_MANAGER_ADDRESS,
         abi: ROOM_MANAGER_ABI,
-        eventName: 'QuestionVoted',
+        eventName: "QuestionVoted",
         onLogs(logs) {
           logs
-            .filter(log => log.args.roomId === roomId)
-            .filter(log => log.args.voter !== address)
-            .forEach(log => {
-              console.log(`Question ${log.args.questionId} has been ${log.args.isUpvote ? 'upvoted' : 'downvoted'} by ${log.args.voter}`);
-              console.log(questions);
-              const questionUpdated = questions.findIndex(q => q.id === log.args.questionId?.toString());
-              if (questionUpdated >= 0) {
-                // TODO: Fix voting updates when clicking on upvote when already upvoted
-                if (log.args.isUpvote) {
-                  questions[questionUpdated].votes++;
-                } else {
-                  questions[questionUpdated].votes--;
-                }
-              }
+            .filter((log) => log.args.roomId === roomId)
+            .filter((log) => log.args.voter !== address)
+            .forEach((log) => {
+              console.log(
+                `Question ${log.args.questionId} has been ${
+                  log.args.isUpvote ? "upvoted" : "downvoted"
+                } by ${log.args.voter} with upvotes/downvotes (${
+                  log.args.upvoteCount
+                }/${log.args.downvoteCount})`
+              );
+              updateVoteCount(
+                log.args.questionId!.toString(),
+                Number(log.args.upvoteCount! - log.args.downvoteCount!)
+              );
             });
-            updateQuestions(questions);
         },
       });
 
       const unwatchQuestionEdited = watchContractEvent(client, {
         address: ROOM_MANAGER_ADDRESS,
         abi: ROOM_MANAGER_ABI,
-        eventName: 'QuestionEdited',
+        eventName: "QuestionEdited",
         onLogs(logs) {
           logs
-            .filter(log => log.args.roomId === roomId)
-            .filter(log => log.args.author !== address)
-            .forEach(log => {
-              console.log(`Question ${log.args.questionId} has been edited by ${log.args.author} with content: ${log.args.content}`);
-              questions.forEach(q => {
+            .filter((log) => log.args.roomId === roomId)
+            .filter((log) => log.args.author !== address)
+            .forEach((log) => {
+              console.log(
+                `Question ${log.args.questionId} has been edited by ${log.args.author} with content: ${log.args.content}`
+              );
+              questions.forEach((q) => {
                 if (q.id == log.args.questionId!.toString()) {
                   q.content = log.args.content!;
                 }
@@ -88,14 +99,16 @@ export function useQuestions(roomId: string | undefined) {
       const unwatchQuestionDeleted = watchContractEvent(client, {
         address: ROOM_MANAGER_ADDRESS,
         abi: ROOM_MANAGER_ABI,
-        eventName: 'QuestionDeleted',
+        eventName: "QuestionDeleted",
         onLogs(logs) {
           logs
-            .filter(log => log.args.roomId === roomId)
-            .filter(log => log.args.author !== address)
-            .forEach(log => {
-              console.log(`Question ${log.args.questionId} has been deleted by ${log.args.author}`);
-              questions.forEach(q => {
+            .filter((log) => log.args.roomId === roomId)
+            .filter((log) => log.args.author !== address)
+            .forEach((log) => {
+              console.log(
+                `Question ${log.args.questionId} has been deleted by ${log.args.author}`
+              );
+              questions.forEach((q) => {
                 if (q.id == log.args.questionId!.toString()) {
                   q.content = "!!!DELETED!!!";
                 }
@@ -108,13 +121,17 @@ export function useQuestions(roomId: string | undefined) {
       const unwatchQuestionStatusChanged = watchContractEvent(client, {
         address: ROOM_MANAGER_ADDRESS,
         abi: ROOM_MANAGER_ABI,
-        eventName: 'QuestionStatusChanged',
+        eventName: "QuestionStatusChanged",
         onLogs(logs) {
           logs
-            .filter(log => log.args.roomId === roomId)
-            .forEach(log => {
-              console.log(`Question ${log.args.questionId} has been been marked as ${log.args.isRead ? 'read' : 'unread'}`);
-              questions.forEach(q => {
+            .filter((log) => log.args.roomId === roomId)
+            .forEach((log) => {
+              console.log(
+                `Question ${log.args.questionId} has been been marked as ${
+                  log.args.isRead ? "read" : "unread"
+                }`
+              );
+              questions.forEach((q) => {
                 if (q.id == log.args.questionId!.toString()) {
                   q.isAnswered = !!log.args.isRead;
                 }

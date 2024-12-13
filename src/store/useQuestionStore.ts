@@ -23,6 +23,7 @@ interface QuestionStore {
   userAddress: string;
   updateQuestions: (questions: Question[]) => void;
   updateNewQuestion: (question: Question) => void;
+  updateVoteCount: (questionId: string, voteCount: number) => void;
   fetchQuestions: (roomId: string, address?: string) => Promise<void>;
   addQuestion: (roomId: string, content: string) => Promise<void>;
   vote: (
@@ -48,6 +49,16 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
   updateNewQuestion: (newQuestion: Question) => {
     const newQuestions = get().questions;
     newQuestions.push(newQuestion)
+    set({ questions: newQuestions});
+  },
+
+  updateVoteCount: (questionId: string, voteCount: number) => {
+    const newQuestions = get().questions;
+    newQuestions.forEach(q => {
+      if (q.id == questionId!.toString()) {
+        q.votes = voteCount;
+      }
+    });
     set({ questions: newQuestions});
   },
 
