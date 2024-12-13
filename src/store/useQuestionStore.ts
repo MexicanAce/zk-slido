@@ -21,9 +21,10 @@ interface QuestionStore {
   isLoading: boolean;
   error: string | null;
   userAddress: string;
-  updateQuestions: (questions: Question[]) => void;
   updateNewQuestion: (question: Question) => void;
+  updateQuestionContent: (questionId: string, content: string) => void;
   updateVoteCount: (questionId: string, voteCount: number) => void;
+  updateQuestionStatus: (questionId: string, isAnswered: boolean) => void;
   fetchQuestions: (roomId: string, address?: string) => Promise<void>;
   addQuestion: (roomId: string, content: string) => Promise<void>;
   vote: (
@@ -42,21 +43,42 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
   error: null,
   userAddress: '0x',
 
-  updateQuestions: (updatedQuestions: Question[]) => {
-    set({ questions: updatedQuestions});
-  },
-
   updateNewQuestion: (newQuestion: Question) => {
-    const newQuestions = get().questions;
+    const newQuestions = [...get().questions];
+    if (get().questions.find(q => q.id === newQuestion.id)) {
+      // Question already added
+      return;
+    }
+
     newQuestions.push(newQuestion)
     set({ questions: newQuestions});
   },
 
+  updateQuestionContent: (questionId: string, content: string) => {
+    const newQuestions = [...get().questions];
+    newQuestions.forEach(q => {
+      if (q.id == questionId!.toString()) {
+        q.content = content;
+      }
+    });
+    set({ questions: newQuestions});
+  },
+
   updateVoteCount: (questionId: string, voteCount: number) => {
-    const newQuestions = get().questions;
+    const newQuestions = [...get().questions];
     newQuestions.forEach(q => {
       if (q.id == questionId!.toString()) {
         q.votes = voteCount;
+      }
+    });
+    set({ questions: newQuestions});
+  },
+
+  updateQuestionStatus: (questionId: string, isAnswered: boolean) => {
+    const newQuestions = [...get().questions];
+    newQuestions.forEach(q => {
+      if (q.id == questionId!.toString()) {
+        q.isAnswered = isAnswered;
       }
     });
     set({ questions: newQuestions});

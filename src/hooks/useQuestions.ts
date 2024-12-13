@@ -9,9 +9,10 @@ import { Question } from "../types/question";
 export function useQuestions(roomId: string | undefined) {
   const {
     questions,
-    updateQuestions,
     updateNewQuestion,
+    updateQuestionContent,
     updateVoteCount,
+    updateQuestionStatus,
     fetchQuestions,
     isLoading,
     error,
@@ -86,12 +87,7 @@ export function useQuestions(roomId: string | undefined) {
               console.log(
                 `Question ${log.args.questionId} has been edited by ${log.args.author} with content: ${log.args.content}`
               );
-              questions.forEach((q) => {
-                if (q.id == log.args.questionId!.toString()) {
-                  q.content = log.args.content!;
-                }
-              });
-              updateQuestions(questions);
+              updateQuestionContent(log.args.questionId!.toString(), log.args.content!);
             });
         },
       });
@@ -108,12 +104,7 @@ export function useQuestions(roomId: string | undefined) {
               console.log(
                 `Question ${log.args.questionId} has been deleted by ${log.args.author}`
               );
-              questions.forEach((q) => {
-                if (q.id == log.args.questionId!.toString()) {
-                  q.content = "!!!DELETED!!!";
-                }
-              });
-              updateQuestions(questions);
+              updateQuestionContent(log.args.questionId!.toString(), "!!!DELETED!!!");
             });
         },
       });
@@ -131,12 +122,7 @@ export function useQuestions(roomId: string | undefined) {
                   log.args.isRead ? "read" : "unread"
                 }`
               );
-              questions.forEach((q) => {
-                if (q.id == log.args.questionId!.toString()) {
-                  q.isAnswered = !!log.args.isRead;
-                }
-              });
-              updateQuestions(questions);
+              updateQuestionStatus(log.args.questionId!.toString(), !!log.args.isRead);
             });
         },
       });
