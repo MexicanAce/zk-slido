@@ -149,7 +149,7 @@ export function useQuestions(roomId: string | undefined) {
         unwatchQuestionStatusChanged();
       };
     }
-  }, [roomId]);
+  }, [roomId, address]);
 
   function refresh() {
     if (roomId && address) {
