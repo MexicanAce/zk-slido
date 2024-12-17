@@ -328,6 +328,23 @@ export const ROOM_MANAGER_ABI = [
     type: "function",
   },
   {
+    inputs: [{ internalType: "bytes32", name: "_roomId", type: "bytes32" }],
+    name: "getRoom",
+    outputs: [
+      {
+        components: [
+          { internalType: "string", name: "name", type: "string" },
+          { internalType: "address[]", name: "admins", type: "address[]" },
+        ],
+        internalType: "struct RoomManager.RoomResponse",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "initialize",
     outputs: [],

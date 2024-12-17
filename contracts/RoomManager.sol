@@ -10,6 +10,11 @@ contract RoomManager is Initializable {
         mapping(address => bool) bannedUsers;
     }
 
+    struct RoomResponse {
+        string name;
+        address[] admins;
+    }
+
     struct Question {
         address author;
         string content;
@@ -46,6 +51,15 @@ contract RoomManager is Initializable {
     event QuestionStatusChanged(bytes32 indexed roomId, uint256 indexed questionId, bool isRead);
 
     function initialize() public initializer {}
+
+    function getRoom(bytes32 _roomId) external view returns (RoomResponse memory) {
+        RoomResponse memory response;
+
+        response.name = rooms[_roomId].name;
+        response.admins = rooms[_roomId].admins;
+
+        return response;
+    }
 
     function createRoom(string memory _name) external returns (bytes32) {
         bytes32 roomId = keccak256(abi.encodePacked(_name, msg.sender, block.timestamp));

@@ -42,7 +42,7 @@ export function QuestionInput({ roomId = undefined }: QuestionInputProps) {
           <Send size={20} />
         </button>
       </div>
-      <div className="h-2 w-full border rounded relative">
+      <div className="h-2 w-full border rounded relative mt-[-7px]">
         <div
           className={`absolute top-0 left-0 h-2 transition-all rounded  ${
             Math.floor((question.length / 300) * 100) > 70
