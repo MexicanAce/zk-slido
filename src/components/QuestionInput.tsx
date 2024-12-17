@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Send } from 'lucide-react';
 import { useQuestionStore } from '../store/useQuestionStore';
-import { useQuestions } from '../hooks/useQuestions';
 
 interface QuestionInputProps {
   roomId: string | undefined;

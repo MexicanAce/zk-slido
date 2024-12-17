@@ -5,10 +5,10 @@ import { watchContractEvent } from "viem/actions";
 import { ROOM_MANAGER_ABI, ROOM_MANAGER_ADDRESS } from "../config/contracts";
 import { getPublicClient } from "@wagmi/core";
 import { Question } from "../types/question";
+import { decryptWithPrivateKey } from "../utils/encrypt";
 
 export function useQuestions(roomId: string | undefined) {
   const {
-    questions,
     updateNewQuestion,
     updateQuestionContent,
     updateVoteCount,
@@ -32,12 +32,12 @@ export function useQuestions(roomId: string | undefined) {
           logs
             .filter((log) => log.args.roomId === roomId)
             .filter((log) => log.args.author !== address)
-            .forEach((log) => {
+            .forEach(async (log) => {
               console.log(
                 `Question ${log.args.questionId} has been added by ${log.args.author} with content: ${log.args.content}`
               );
               const newQuestion: Question = {
-                id: questions.length.toString(),
+                id: log.args.questionId!.toString(),
                 authorId: log.args.author!,
                 content: log.args.content!,
                 votes: 0,
@@ -46,7 +46,7 @@ export function useQuestions(roomId: string | undefined) {
                 isUpvoted: false,
                 createDate: new Date(),
               };
-              updateNewQuestion(newQuestion);
+              await updateNewQuestion(roomId, newQuestion);
             });
         },
       });
@@ -83,11 +83,12 @@ export function useQuestions(roomId: string | undefined) {
           logs
             .filter((log) => log.args.roomId === roomId)
             .filter((log) => log.args.author !== address)
-            .forEach((log) => {
+            .forEach(async (log) => {
               console.log(
                 `Question ${log.args.questionId} has been edited by ${log.args.author} with content: ${log.args.content}`
               );
-              updateQuestionContent(log.args.questionId!.toString(), log.args.content!);
+              const decryptedMessage = await decryptWithPrivateKey(roomId, log.args.content!);
+              updateQuestionContent(log.args.questionId!.toString(), decryptedMessage);
             });
         },
       });

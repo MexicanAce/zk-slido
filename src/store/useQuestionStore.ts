@@ -3,25 +3,23 @@ import {
   readContract,
   writeContract,
   waitForTransactionReceipt,
-  getPublicClient,
 } from '@wagmi/core';
 import {
   ROOM_MANAGER_ADDRESS,
   ROOM_MANAGER_ABI,
   ROOM_MANAGER_PAYMASTER_ADDRESS,
 } from '../config/contracts';
-import { useRoomStore } from './useRoomStore';
-import type { Address } from 'viem';
 import { config } from './useWeb3Store';
 import { Question } from '../types/question';
 import { getGeneralPaymasterInput } from 'viem/zksync';
+import { decryptWithPrivateKey, encryptWithPrivateKey } from '../utils/encrypt';
 
 interface QuestionStore {
   questions: Question[];
   isLoading: boolean;
   error: string | null;
   userAddress: string;
-  updateNewQuestion: (question: Question) => void;
+  updateNewQuestion: (roomId: string, question: Question) => Promise<void>;
   updateQuestionContent: (questionId: string, content: string) => void;
   updateVoteCount: (questionId: string, voteCount: number) => void;
   updateQuestionStatus: (questionId: string, isAnswered: boolean) => void;
@@ -43,14 +41,15 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
   error: null,
   userAddress: '0x',
 
-  updateNewQuestion: (newQuestion: Question) => {
+  updateNewQuestion: async (roomId: string, newQuestion: Question) => {
     const newQuestions = [...get().questions];
     if (get().questions.find(q => q.id === newQuestion.id)) {
       // Question already added
       return;
     }
 
-    newQuestions.push(newQuestion)
+    newQuestion.content = await decryptWithPrivateKey(roomId, newQuestion.content);
+    newQuestions.push(newQuestion);
     set({ questions: newQuestions});
   },
 
@@ -103,10 +102,11 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
 
       console.log({ questionData });
 
-      questionData.forEach((question, i) => {
+      for (let i = 0; i < questionData.length; i++) {
+        const question = questionData[i];
         questions.push({
           id: i.toString(),
-          content: question.content,
+          content: await decryptWithPrivateKey(roomId, question.content),
           votes: Number(question.upvoteCount) - Number(question.downvoteCount),
           isAnswered: question.isRead,
           authorId: question.author as string,
@@ -114,7 +114,7 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
           isUpvoted: question.isUpvoted,
           isDownvoted: question.isDownvoted,
         });
-      });
+      }
 
       set({ questions, isLoading: false });
     } catch (error) {
@@ -126,11 +126,12 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
   addQuestion: async (roomId: string, content: string) => {
     set({ isLoading: true, error: null });
     try {
+      const encryptedMessage = await encryptWithPrivateKey(roomId, content);
       const hash = await writeContract(config, {
         address: ROOM_MANAGER_ADDRESS,
         abi: ROOM_MANAGER_ABI,
         functionName: 'addQuestion',
-        args: [roomId as `0x${string}`, content],
+        args: [roomId as `0x${string}`, encryptedMessage],
         paymaster: ROOM_MANAGER_PAYMASTER_ADDRESS,
         paymasterInput: getGeneralPaymasterInput({ innerInput: '0x' }),
       });
@@ -206,11 +207,12 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
   editQuestion: async (roomId: string, questionId: number, content: string) => {
     set({ isLoading: true });
     try {
+      const encryptedMessage = await encryptWithPrivateKey(roomId, content);
       const hash = await writeContract(config, {
         address: ROOM_MANAGER_ADDRESS,
         abi: ROOM_MANAGER_ABI,
         functionName: 'editQuestion',
-        args: [roomId as `0x${string}`, BigInt(questionId), content],
+        args: [roomId as `0x${string}`, BigInt(questionId), encryptedMessage],
         paymaster: ROOM_MANAGER_PAYMASTER_ADDRESS,
         paymasterInput: getGeneralPaymasterInput({ innerInput: '0x' }),
       });
