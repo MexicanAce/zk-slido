@@ -1,14 +1,13 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Plus } from 'lucide-react';
-import { RoomJoin } from '../components/RoomJoin';
-import { Header } from '../components/layout/Header';
-import { useRoomStore } from '../store/useRoomStore';
-import { useWeb3Store } from '../store/useWeb3Store';
+import { useNavigate } from "react-router-dom";
+import { Plus } from "lucide-react";
+import { RoomJoin } from "../components/RoomJoin";
+import { Header } from "../components/layout/Header";
+import { useRoomStore } from "../store/useRoomStore";
+import { useWeb3Store } from "../store/useWeb3Store";
 
 export function HomePage() {
   const navigate = useNavigate();
-  const { createRoom, isLoading } = useRoomStore();
+  const { createRoom, isLoading, error } = useRoomStore();
   const { connect } = useWeb3Store();
 
   const handleCreateRoom = async () => {
@@ -49,6 +48,16 @@ export function HomePage() {
             <RoomJoin />
           </div>
         </div>
+        {error && (
+          <div className="text-red-500 items-center flex justify-center mt-8 text-lg">
+            {error}
+            {error?.endsWith("invalid session") && (
+              <span className="ml-1.5 italic text-slate-600">
+                (Please disconnect & login)
+              </span>
+            )}
+          </div>
+        )}
       </main>
     </div>
   );

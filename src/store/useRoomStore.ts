@@ -9,8 +9,8 @@ import {
   ROOM_MANAGER_ABI,
   ROOM_MANAGER_PAYMASTER_ADDRESS,
 } from "../config/contracts";
-import type { Address } from "viem";
-import { config } from "./useWeb3Store";
+import { ContractFunctionExecutionError, type Address } from "viem";
+import { config, isSessionInvalid } from "./useWeb3Store";
 import { getGeneralPaymasterInput } from "viem/zksync";
 
 interface RoomStore {
@@ -60,7 +60,14 @@ export const useRoomStore = create<RoomStore>((set) => ({
       set({ isLoading: false });
     } catch (error) {
       console.error("Failed to create room:", error);
-      set({ error: "Failed to create room", isLoading: false });
+      let displayError = "Failed to create room";
+      if (
+        error instanceof ContractFunctionExecutionError &&
+        isSessionInvalid(error.cause.shortMessage)
+      ) {
+        displayError += " due to invalid session";
+      }
+      set({ error: displayError, isLoading: false });
     }
   },
 
@@ -127,7 +134,14 @@ export const useRoomStore = create<RoomStore>((set) => ({
       });
     } catch (error) {
       console.error("Failed to add Admin:", error);
-      set({ isAdmin: false, admins: [], isLoading: false });
+      let displayError = "Failed to add Admin";
+      if (
+        error instanceof ContractFunctionExecutionError &&
+        isSessionInvalid(error.cause.shortMessage)
+      ) {
+        displayError += " due to invalid session";
+      }
+      set({ isAdmin: false, admins: [], isLoading: false, error: displayError });
     }
   },
 }));

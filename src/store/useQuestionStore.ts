@@ -1,18 +1,19 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 import {
   readContract,
   writeContract,
   waitForTransactionReceipt,
-} from '@wagmi/core';
+} from "@wagmi/core";
 import {
   ROOM_MANAGER_ADDRESS,
   ROOM_MANAGER_ABI,
   ROOM_MANAGER_PAYMASTER_ADDRESS,
-} from '../config/contracts';
-import { config } from './useWeb3Store';
-import { Question } from '../types/question';
-import { getGeneralPaymasterInput } from 'viem/zksync';
-import { decryptWithPrivateKey, encryptWithPrivateKey } from '../utils/encrypt';
+} from "../config/contracts";
+import { config, isSessionInvalid } from "./useWeb3Store";
+import { Question } from "../types/question";
+import { getGeneralPaymasterInput } from "viem/zksync";
+import { decryptWithPrivateKey, encryptWithPrivateKey } from "../utils/encrypt";
+import { ContractFunctionExecutionError } from "viem";
 
 interface QuestionStore {
   questions: Question[];
@@ -31,7 +32,11 @@ interface QuestionStore {
     isUpvote: boolean
   ) => Promise<void>;
   toggleAnswered: (roomId: string, questionId: number) => Promise<void>;
-  editQuestion: (roomId: string, questionId: number, content: string) => Promise<void>;
+  editQuestion: (
+    roomId: string,
+    questionId: number,
+    content: string
+  ) => Promise<void>;
   deleteQuestion: (roomId: string, questionId: number) => Promise<void>;
 }
 
@@ -39,48 +44,51 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
   questions: [],
   isLoading: false,
   error: null,
-  userAddress: '0x',
+  userAddress: "0x",
 
   updateNewQuestion: async (roomId: string, newQuestion: Question) => {
     const newQuestions = [...get().questions];
-    if (get().questions.find(q => q.id === newQuestion.id)) {
+    if (get().questions.find((q) => q.id === newQuestion.id)) {
       // Question already added
       return;
     }
 
-    newQuestion.content = await decryptWithPrivateKey(roomId, newQuestion.content);
+    newQuestion.content = await decryptWithPrivateKey(
+      roomId,
+      newQuestion.content
+    );
     newQuestions.push(newQuestion);
-    set({ questions: newQuestions});
+    set({ questions: newQuestions });
   },
 
   updateQuestionContent: (questionId: string, content: string) => {
     const newQuestions = [...get().questions];
-    newQuestions.forEach(q => {
+    newQuestions.forEach((q) => {
       if (q.id == questionId!.toString()) {
         q.content = content;
       }
     });
-    set({ questions: newQuestions});
+    set({ questions: newQuestions });
   },
 
   updateVoteCount: (questionId: string, voteCount: number) => {
     const newQuestions = [...get().questions];
-    newQuestions.forEach(q => {
+    newQuestions.forEach((q) => {
       if (q.id == questionId!.toString()) {
         q.votes = voteCount;
       }
     });
-    set({ questions: newQuestions});
+    set({ questions: newQuestions });
   },
 
   updateQuestionStatus: (questionId: string, isAnswered: boolean) => {
     const newQuestions = [...get().questions];
-    newQuestions.forEach(q => {
+    newQuestions.forEach((q) => {
       if (q.id == questionId!.toString()) {
         q.isAnswered = isAnswered;
       }
     });
-    set({ questions: newQuestions});
+    set({ questions: newQuestions });
   },
 
   fetchQuestions: async (
@@ -94,7 +102,7 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
       const questionData = await readContract(config, {
         address: ROOM_MANAGER_ADDRESS,
         abi: ROOM_MANAGER_ABI,
-        functionName: 'getAllQuestions',
+        functionName: "getAllQuestions",
         args: [roomId as `0x${string}`, address as `0x${string}`],
       });
 
@@ -118,8 +126,8 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
 
       set({ questions, isLoading: false });
     } catch (error) {
-      console.error('Failed to fetch questions:', error);
-      set({ error: 'Failed to fetch questions', isLoading: false });
+      console.error("Failed to fetch questions:", error);
+      set({ error: "Failed to fetch questions", isLoading: false });
     }
   },
 
@@ -130,22 +138,29 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
       const hash = await writeContract(config, {
         address: ROOM_MANAGER_ADDRESS,
         abi: ROOM_MANAGER_ABI,
-        functionName: 'addQuestion',
+        functionName: "addQuestion",
         args: [roomId as `0x${string}`, encryptedMessage],
         paymaster: ROOM_MANAGER_PAYMASTER_ADDRESS,
-        paymasterInput: getGeneralPaymasterInput({ innerInput: '0x' }),
+        paymasterInput: getGeneralPaymasterInput({ innerInput: "0x" }),
       });
 
       const receipt = await waitForTransactionReceipt(config, { hash });
-      if (receipt.status === 'reverted') {
-        throw new Error('Transaction reverted');
+      if (receipt.status === "reverted") {
+        throw new Error("Transaction reverted");
       }
 
       // Refresh questions after adding new one
       await get().fetchQuestions(roomId);
     } catch (error) {
-      console.error('Failed to add question:', error);
-      set({ isLoading: false, error: 'Failed to add question' });
+      console.error("Failed to add question:", error);
+      let displayError = "Failed to add question";
+      if (
+        error instanceof ContractFunctionExecutionError &&
+        isSessionInvalid(error.cause.shortMessage)
+      ) {
+        displayError += " due to invalid session";
+      }
+      set({ isLoading: false, error: displayError });
     }
   },
 
@@ -155,25 +170,32 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
       const hash = await writeContract(config, {
         address: ROOM_MANAGER_ADDRESS,
         abi: ROOM_MANAGER_ABI,
-        functionName: 'voteQuestion',
+        functionName: "voteQuestion",
         args: [roomId as `0x${string}`, BigInt(questionId), isUpvote],
         paymaster: ROOM_MANAGER_PAYMASTER_ADDRESS,
-        paymasterInput: getGeneralPaymasterInput({ innerInput: '0x' }),
+        paymasterInput: getGeneralPaymasterInput({ innerInput: "0x" }),
         gas: 500_000n, // Hard-coded to speed up UX (as there's no need for gas estimation)
         maxPriorityFeePerGas: 0n, // Hard-coded to speed up UX
         chainId: config.chains[0].id,
       });
 
       const receipt = await waitForTransactionReceipt(config, { hash });
-      if (receipt.status === 'reverted') {
-        throw new Error('Transaction reverted');
+      if (receipt.status === "reverted") {
+        throw new Error("Transaction reverted");
       }
 
       // Refresh questions after voting
       await get().fetchQuestions(roomId);
     } catch (error) {
-      console.error('Failed to vote:', error);
-      set({ error: 'Failed to vote on question' });
+      console.error("Failed to vote:", error);
+      let displayError = "Failed to vote on question";
+      if (
+        error instanceof ContractFunctionExecutionError &&
+        isSessionInvalid(error.cause.shortMessage)
+      ) {
+        displayError += " due to invalid session";
+      }
+      set({ error: displayError });
     } finally {
       set({ isLoading: false });
     }
@@ -185,22 +207,29 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
       const hash = await writeContract(config, {
         address: ROOM_MANAGER_ADDRESS,
         abi: ROOM_MANAGER_ABI,
-        functionName: 'toggleQuestionStatus',
+        functionName: "toggleQuestionStatus",
         args: [roomId as `0x${string}`, BigInt(questionId)],
         paymaster: ROOM_MANAGER_PAYMASTER_ADDRESS,
-        paymasterInput: getGeneralPaymasterInput({ innerInput: '0x' }),
+        paymasterInput: getGeneralPaymasterInput({ innerInput: "0x" }),
       });
 
       const receipt = await waitForTransactionReceipt(config, { hash });
-      if (receipt.status === 'reverted') {
-        throw new Error('Transaction reverted');
+      if (receipt.status === "reverted") {
+        throw new Error("Transaction reverted");
       }
 
       // Refresh questions after toggling status
       await get().fetchQuestions(roomId);
     } catch (error) {
-      console.error('Failed to toggle question status:', error);
-      set({ isLoading: false, error: 'Failed to update question status' });
+      console.error("Failed to toggle question status:", error);
+      let displayError = "Failed to update question status";
+      if (
+        error instanceof ContractFunctionExecutionError &&
+        isSessionInvalid(error.cause.shortMessage)
+      ) {
+        displayError += " due to invalid session";
+      }
+      set({ isLoading: false, error: displayError });
     }
   },
 
@@ -211,22 +240,29 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
       const hash = await writeContract(config, {
         address: ROOM_MANAGER_ADDRESS,
         abi: ROOM_MANAGER_ABI,
-        functionName: 'editQuestion',
+        functionName: "editQuestion",
         args: [roomId as `0x${string}`, BigInt(questionId), encryptedMessage],
         paymaster: ROOM_MANAGER_PAYMASTER_ADDRESS,
-        paymasterInput: getGeneralPaymasterInput({ innerInput: '0x' }),
+        paymasterInput: getGeneralPaymasterInput({ innerInput: "0x" }),
       });
 
       const receipt = await waitForTransactionReceipt(config, { hash });
-      if (receipt.status === 'reverted') {
-        throw new Error('Transaction reverted');
+      if (receipt.status === "reverted") {
+        throw new Error("Transaction reverted");
       }
 
       // Refresh questions after toggling status
       await get().fetchQuestions(roomId);
     } catch (error) {
-      console.error('Failed to update question:', error);
-      set({ isLoading: false, error: 'Failed to update question' });
+      console.error("Failed to update question:", error);
+      let displayError = "Failed to update question";
+      if (
+        error instanceof ContractFunctionExecutionError &&
+        isSessionInvalid(error.cause.shortMessage)
+      ) {
+        displayError += " due to invalid session";
+      }
+      set({ isLoading: false, error: displayError });
     }
   },
 
@@ -236,22 +272,29 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
       const hash = await writeContract(config, {
         address: ROOM_MANAGER_ADDRESS,
         abi: ROOM_MANAGER_ABI,
-        functionName: 'deleteQuestion',
+        functionName: "deleteQuestion",
         args: [roomId as `0x${string}`, BigInt(questionId)],
         paymaster: ROOM_MANAGER_PAYMASTER_ADDRESS,
-        paymasterInput: getGeneralPaymasterInput({ innerInput: '0x' }),
+        paymasterInput: getGeneralPaymasterInput({ innerInput: "0x" }),
       });
 
       const receipt = await waitForTransactionReceipt(config, { hash });
-      if (receipt.status === 'reverted') {
-        throw new Error('Transaction reverted');
+      if (receipt.status === "reverted") {
+        throw new Error("Transaction reverted");
       }
 
       // Refresh questions after toggling status
       await get().fetchQuestions(roomId);
     } catch (error) {
-      console.error('Failed to delete question:', error);
-      set({ isLoading: false, error: 'Failed to delete question' });
+      console.error("Failed to delete question:", error);
+      let displayError = "Failed to delete question";
+      if (
+        error instanceof ContractFunctionExecutionError &&
+        isSessionInvalid(error.cause.shortMessage)
+      ) {
+        displayError += " due to invalid session";
+      }
+      set({ isLoading: false, error: displayError });
     }
   },
 }));

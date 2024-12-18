@@ -38,6 +38,9 @@ export function RoomPage() {
       setDisplayShareSuccess(false);
     }, 2000);
   }
+  async function onRefreshClicked() {
+    // TODO: Request a new session
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -93,7 +96,26 @@ export function RoomPage() {
             )}
           </div>
           <QuestionInput roomId={roomId} />
-          {error && <div className="text-center text-red-600">{error}</div>}
+          {error && (
+            <div className="text-center text-red-600">
+              {error}
+              {error?.endsWith("invalid session") && (
+                <span
+                  className="ml-1.5 italic text-slate-600"
+                >
+                  (Please disconnect & login)
+                </span>
+              )}
+              {/* {error?.endsWith("invalid session") && (
+                <button
+                  onClick={onRefreshClicked}
+                  className="border py-1 px-4 ml-1.5 rounded-md transition-colors text-slate-600 hover:bg-blue-300 disabled:cursor-not-allowed"
+                >
+                  Refresh Session?
+                </button>
+              )} */}
+            </div>
+          )}
           <QuestionList isAdmin={isAdmin} roomId={roomId} address={address!} />
         </div>
         <AddAdminModal

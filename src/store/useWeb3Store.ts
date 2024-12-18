@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 import {
   connect,
   createConfig,
@@ -7,11 +7,11 @@ import {
   http,
   reconnect,
   watchAccount,
-} from '@wagmi/core';
-import { zksyncSepoliaTestnet } from 'viem/chains';
-import { callPolicy, zksyncSsoConnector } from 'zksync-sso/connector';
-import { parseEther } from 'viem';
-import { ROOM_MANAGER_ADDRESS, ROOM_MANAGER_ABI } from '../config/contracts';
+} from "@wagmi/core";
+import { zksyncSepoliaTestnet } from "viem/chains";
+import { callPolicy, zksyncSsoConnector } from "zksync-sso/connector";
+import { parseEther } from "viem";
+import { ROOM_MANAGER_ADDRESS, ROOM_MANAGER_ABI } from "../config/contracts";
 
 interface Web3Store {
   isConnected: boolean;
@@ -20,47 +20,64 @@ interface Web3Store {
   disconnect: () => void;
 }
 
+export const SSO_INVALID_SESSION_ERRORS = [
+  "block.timestamp is too close to the range end",
+  "Allowance limit exceeded",
+  "function_selector = 0x3d5740d9", // Unsure wtf this is
+];
+
+export const isSessionInvalid = (errorMessage: string): boolean => {
+  return (
+    SSO_INVALID_SESSION_ERRORS.find((x) => errorMessage.includes(x)) !=
+    undefined
+  );
+}
+
 const connector = zksyncSsoConnector({
   metadata: {
-    icon: 'https://www.svgrepo.com/show/347317/question-answer.svg',
+    icon: "https://www.svgrepo.com/show/347317/question-answer.svg",
   },
   session: {
-    feeLimit: parseEther('0.001'),
+    expiry: "30 days",
+    feeLimit: {
+      limit: parseEther("0.001"),
+      limitType: "lifetime",
+    },
     contractCalls: [
       callPolicy({
         address: ROOM_MANAGER_ADDRESS,
         abi: ROOM_MANAGER_ABI,
-        functionName: 'createRoom',
+        functionName: "createRoom",
       }),
       callPolicy({
         address: ROOM_MANAGER_ADDRESS,
         abi: ROOM_MANAGER_ABI,
-        functionName: 'addAdmin',
+        functionName: "addAdmin",
       }),
       callPolicy({
         address: ROOM_MANAGER_ADDRESS,
         abi: ROOM_MANAGER_ABI,
-        functionName: 'addQuestion',
+        functionName: "addQuestion",
       }),
       callPolicy({
         address: ROOM_MANAGER_ADDRESS,
         abi: ROOM_MANAGER_ABI,
-        functionName: 'voteQuestion',
+        functionName: "voteQuestion",
       }),
       callPolicy({
         address: ROOM_MANAGER_ADDRESS,
         abi: ROOM_MANAGER_ABI,
-        functionName: 'editQuestion',
+        functionName: "editQuestion",
       }),
       callPolicy({
         address: ROOM_MANAGER_ADDRESS,
         abi: ROOM_MANAGER_ABI,
-        functionName: 'deleteQuestion',
+        functionName: "deleteQuestion",
       }),
       callPolicy({
         address: ROOM_MANAGER_ADDRESS,
         abi: ROOM_MANAGER_ABI,
-        functionName: 'toggleQuestionStatus',
+        functionName: "toggleQuestionStatus",
       }),
     ],
   },
@@ -98,7 +115,7 @@ export const useWeb3Store = create<Web3Store>((set) => {
           chainId: zksyncSepoliaTestnet.id,
         });
       } catch (error) {
-        console.error('Failed to connect:', error);
+        console.error("Failed to connect:", error);
       }
     },
     disconnect: () => {
