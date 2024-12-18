@@ -174,7 +174,7 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
         args: [roomId as `0x${string}`, BigInt(questionId), isUpvote],
         paymaster: ROOM_MANAGER_PAYMASTER_ADDRESS,
         paymasterInput: getGeneralPaymasterInput({ innerInput: "0x" }),
-        gas: 500_000n, // Hard-coded to speed up UX (as there's no need for gas estimation)
+        // gas: 500_000n, // Hard-coded to speed up UX (as there's no need for gas estimation)
         maxPriorityFeePerGas: 0n, // Hard-coded to speed up UX
         chainId: config.chains[0].id,
       });
