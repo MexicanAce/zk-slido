@@ -54,7 +54,7 @@ export function RoomPage() {
 
       <main className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex flex-col items-center gap-6">
-          <div className="flex flex-col items-center gap-3">
+          <div className="flex flex-col items-center gap-3 text-slate-300">
             <div className="flex items-center">
               <h1 className="font-bold text-2xl">
                 {`Room ${shortenAddress(roomId)}`}
@@ -102,7 +102,7 @@ export function RoomPage() {
               {error}
               {error?.endsWith("invalid session") && (
                 <span
-                  className="ml-1.5 italic text-slate-600"
+                  className="ml-1.5 italic"
                 >
                   (Please disconnect & login)
                 </span>

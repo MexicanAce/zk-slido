@@ -35,12 +35,12 @@ export function QuestionCard({
   return (
     <div
       className={cn(
-        "bg-white rounded-lg p-4 shadow-sm border transition-all relative",
+        "bg-slate-700 rounded-lg p-4 shadow-sm border border-gray-600 transition-all relative",
         question.isAnswered && "bg-gray-50 border-green-200"
       )}
     >
       {isLoading && (
-        <div className="absolute w-full h-full left-0 top-0 bg-gray-300 opacity-70"></div>
+        <div className="absolute w-full h-full left-0 top-0 bg-gray-400 rounded-lg opacity-70"></div>
       )}
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1">
@@ -49,20 +49,20 @@ export function QuestionCard({
               size={34}
               className={cn(
                 "mr-2",
-                question.isAnswered ? "text-gray-200" : "text-gray-300"
+                question.isAnswered ? "text-gray-300" : "text-gray-400"
               )}
             />
             <div className="flex flex-col">
               <span
                 className={`text-sm font-bold ${
-                  question.isAnswered ? "text-gray-300" : "text-gray-500"
+                  question.isAnswered ? "text-gray-300" : "text-gray-400"
                 }`}
               >
                 {shortenAddress(question.authorId)}
               </span>
               <span
                 className={`text-xs ${
-                  question.isAnswered ? "text-gray-300" : "text-gray-500"
+                  question.isAnswered ? "text-gray-300" : "text-gray-400"
                 }`}
               >
                 {timeAgo(question.createDate)}
@@ -73,7 +73,7 @@ export function QuestionCard({
             hidden={displayEdit}
             className={cn(
               "whitespace-pre text-lg text-pretty",
-              question.isAnswered ? "text-gray-300" : "text-gray-900"
+              question.isAnswered ? "text-gray-300" : "text-gray-200"
             )}
           >
             {question.content}

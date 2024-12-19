@@ -19,7 +19,7 @@ export function QuestionInput({ roomId = undefined }: QuestionInputProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-2xl">
+    <form onSubmit={handleSubmit} className="w-full max-w-2xl text-slate-300">
       <div className="relative">
         <textarea
           maxLength={300}
@@ -32,11 +32,11 @@ export function QuestionInput({ roomId = undefined }: QuestionInputProps) {
           }}
           disabled={isLoading}
           placeholder="Ask a question..."
-          className="w-full px-4 py-3 pr-10 rounded-lg bg-white border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+          className="w-full px-4 py-3 pr-10 rounded-lg bg-slate-700 border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-200 outline-none transition-all"
         />
         <button
           type="submit"
-          className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-blue-500 hover:text-blue-600 disabled:opacity-50"
+          className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-blue-300 hover:text-blue-400 disabled:opacity-50"
           disabled={!question.trim() || isLoading}
         >
           <Send size={20} />
