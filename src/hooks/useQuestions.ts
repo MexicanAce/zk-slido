@@ -21,9 +21,11 @@ export function useQuestions(roomId: string | undefined) {
   const client = getPublicClient(config);
 
   useEffect(() => {
-    if (roomId && address) {
+    if (roomId) {
       fetchQuestions(roomId, address);
+    }
 
+    if (roomId && address) {
       const unwatchQuestionAdded = watchContractEvent(client, {
         address: ROOM_MANAGER_ADDRESS,
         abi: ROOM_MANAGER_ABI,
@@ -142,7 +144,7 @@ export function useQuestions(roomId: string | undefined) {
   }, [roomId, address]);
 
   function refresh() {
-    if (roomId && address) {
+    if (roomId) {
       console.log("Manually refreshing questions...");
       fetchQuestions(roomId, address);
     }
