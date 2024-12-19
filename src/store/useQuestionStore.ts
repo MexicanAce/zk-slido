@@ -95,7 +95,7 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
 
   fetchQuestions: async (
     roomId: string,
-    address: string = get().userAddress
+    address: string = ROOM_MANAGER_ADDRESS
   ) => {
     set({ isLoading: true, error: null });
     try {
