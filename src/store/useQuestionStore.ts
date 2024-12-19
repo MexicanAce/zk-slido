@@ -22,7 +22,7 @@ interface QuestionStore {
   userAddress: string;
   updateNewQuestion: (roomId: string, question: Question) => Promise<void>;
   updateQuestionContent: (questionId: string, content: string) => void;
-  updateVoteCount: (questionId: string, voteCount: number) => void;
+  updateVoteCount: (questionId: string, upvotes: number, downvotes: number) => void;
   updateQuestionStatus: (questionId: string, isAnswered: boolean) => void;
   fetchQuestions: (roomId: string, address?: string) => Promise<void>;
   addQuestion: (roomId: string, content: string) => Promise<void>;
@@ -71,11 +71,13 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
     set({ questions: newQuestions });
   },
 
-  updateVoteCount: (questionId: string, voteCount: number) => {
+  updateVoteCount: (questionId: string, upvotes: number, downvotes: number) => {
     const newQuestions = [...get().questions];
     newQuestions.forEach((q) => {
       if (q.id == questionId!.toString()) {
-        q.votes = voteCount;
+        q.votes = upvotes - downvotes;
+        q.upvotes = upvotes;
+        q.downvotes = downvotes;
       }
     });
     set({ questions: newQuestions });
@@ -116,6 +118,8 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
           id: i.toString(),
           content: await decryptWithPrivateKey(roomId, question.content),
           votes: Number(question.upvoteCount) - Number(question.downvoteCount),
+          upvotes: Number(question.upvoteCount),
+          downvotes: Number(question.downvoteCount),
           isAnswered: question.isRead,
           authorId: question.author as string,
           createDate: new Date(Number(question.createDate) * 1000),

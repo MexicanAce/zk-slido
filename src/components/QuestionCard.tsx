@@ -91,7 +91,7 @@ export function QuestionCard({
           />
         </div>
         <div className="flex flex-col justify-between h-full">
-          <div className="flex gap-2">
+          <div className="flex gap-0.5 items-center">
             <button
               onClick={() => vote(roomId, +question.id, true)}
               disabled={question.isAnswered}
@@ -102,11 +102,20 @@ export function QuestionCard({
               <ThumbsUp size={18} />
             </button>
             <span
-              className={`min-w-4 text-center font-medium ${
+              className={`w-4 mr-3 font-medium text-left ${
                 question.isAnswered ? "text-gray-300" : ""
               }`}
             >
-              {question.votes}
+              {question.upvotes > 0 && '+'}
+              {question.upvotes}
+            </span>
+            <span
+              className={`w-4 text-right font-medium ${
+                question.isAnswered ? "text-gray-300" : ""
+              }`}
+            >
+              {question.downvotes > 0 && '-'}
+              {question.downvotes}
             </span>
             <button
               onClick={() => vote(roomId, +question.id, false)}

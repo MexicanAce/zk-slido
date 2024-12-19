@@ -69,7 +69,8 @@ export function useQuestions(roomId: string | undefined) {
               );
               updateVoteCount(
                 log.args.questionId!.toString(),
-                Number(log.args.upvoteCount! - log.args.downvoteCount!)
+                Number(log.args.upvoteCount!),
+                Number(log.args.downvoteCount!)
               );
             });
         },
