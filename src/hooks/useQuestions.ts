@@ -41,6 +41,8 @@ export function useQuestions(roomId: string | undefined) {
                 authorId: log.args.author!,
                 content: log.args.content!,
                 votes: 0,
+                upvotes: 0,
+                downvotes: 0,
                 isAnswered: false,
                 isDownvoted: false,
                 isUpvoted: false,
