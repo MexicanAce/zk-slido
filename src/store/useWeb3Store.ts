@@ -23,6 +23,7 @@ interface Web3Store {
 export const SSO_INVALID_SESSION_ERRORS = [
   "block.timestamp is too close to the range end",
   "Allowance limit exceeded",
+  "Lifetime limit exceeded",
   "function_selector = 0x3d5740d9", // Unsure wtf this is
 ];
 
