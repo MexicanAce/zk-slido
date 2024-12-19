@@ -41,7 +41,7 @@ const connector = zksyncSsoConnector({
   session: {
     expiry: "30 days",
     feeLimit: {
-      limit: parseEther("0.001"),
+      limit: parseEther("0.01"),
       limitType: "lifetime",
     },
     contractCalls: [
