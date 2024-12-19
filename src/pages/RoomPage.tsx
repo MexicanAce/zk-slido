@@ -11,6 +11,7 @@ import { useQuestions } from "../hooks/useQuestions";
 import { PlusCircle, RefreshCw } from "lucide-react";
 import { shortenAddress } from "../utils/misc";
 import { AddAdminModal } from "../components/AddAdminModal";
+import { MorphingGradientBackground } from "../components/MorphingGradientBackground";
 
 export function RoomPage() {
   const { roomId } = useParams<{ roomId: string }>();
@@ -43,7 +44,7 @@ export function RoomPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Header
         title="Q&A Platform"
         onLoginClick={async () => {
@@ -124,6 +125,7 @@ export function RoomPage() {
           onClose={() => setIsAddAdminModalOpen(false)}
         />
       </main>
+        <MorphingGradientBackground />
     </div>
   );
 }

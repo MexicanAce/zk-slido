@@ -42,7 +42,7 @@ export function QuestionInput({ roomId = undefined }: QuestionInputProps) {
           <Send size={20} />
         </button>
       </div>
-      <div className="h-2 w-full border rounded relative mt-[-7px]">
+      <div className="h-2 w-full border border-opacity-30 border-slate-500 rounded relative mt-[-7px]">
         <div
           className={`absolute top-0 left-0 h-2 transition-all rounded  ${
             Math.floor((question.length / 300) * 100) > 70
@@ -53,7 +53,7 @@ export function QuestionInput({ roomId = undefined }: QuestionInputProps) {
           }`}
           style={{ width: `${Math.floor((question.length / 300) * 100)}%` }}
         ></div>
-        <div className="text-sm mt-2 w-full text-right">
+        <div className="text-sm mt-2 w-full text-right text-white">
           {Math.floor((question.length / 300) * 100) > 85 &&
             `${300 - question.length} characters left`}
         </div>

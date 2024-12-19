@@ -30,15 +30,15 @@ export function Header({ onLoginClick, title }: HeaderProps) {
   }, []);
 
   return (
-    <header className="bg-white border-b">
+    <header className="bg-gray-200 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-60 text-black rounded-b-lg">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         <NavLink className="flex items-center gap-2" to="/">
-          <MessageSquare className="text-blue-500" />
+          <MessageSquare className="text-blue-800" />
           <h1 className="text-xl font-semibold">{title}</h1>
         </NavLink>
         <div className="flex items-center gap-4">
           {isConnected &&
-            <div className="relative flex items-center text-sm text-slate-600 italic hover:cursor-pointer hover:text-slate-400" onClick={onCopyClicked}>
+            <div className="relative flex items-center text-sm text-slate-800 italic hover:cursor-pointer hover:text-black" onClick={onCopyClicked}>
               <Copy size={16} className="mr-2"/>
               {shortenAddress(address!)}
               <span
