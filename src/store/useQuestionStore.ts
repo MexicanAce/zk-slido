@@ -44,7 +44,7 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
   questions: [],
   isLoading: false,
   error: null,
-  userAddress: "0x",
+  userAddress: ROOM_MANAGER_ADDRESS,
 
   updateNewQuestion: async (roomId: string, newQuestion: Question) => {
     const newQuestions = [...get().questions];

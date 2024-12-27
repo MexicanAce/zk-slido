@@ -24,7 +24,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
   return (
     <div
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 h-screen"
       onClick={onClose}
     >
       <div
@@ -34,7 +34,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
         <h2 className="text-xl font-semibold mb-4">Welcome to Q&A</h2>
         <p className="text-gray-600 mb-6">
           Login to participate in the Q&A sessions. This will allow you to
-          create rooms, ask questions, and vote on others' questions.
+          create rooms, ask questions, and vote on others' questions
         </p>
         <div className="flex justify-end gap-3">
           <button

@@ -30,7 +30,7 @@ export function Header({ onLoginClick, title }: HeaderProps) {
   }, []);
 
   return (
-    <header className="bg-gray-200 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-60 text-black rounded-b-lg">
+    <header className="bg-gray-200 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-60 text-black rounded-b-lg sticky z-20">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         <NavLink className="flex items-center gap-2" to="/">
           <MessageSquare className="text-blue-800" />
