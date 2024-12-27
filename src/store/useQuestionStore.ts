@@ -95,9 +95,14 @@ export const useQuestionStore = create<QuestionStore>((set, get) => ({
 
   fetchQuestions: async (
     roomId: string,
-    address: string = ROOM_MANAGER_ADDRESS
+    address?: string,
   ) => {
     set({ isLoading: true, error: null });
+
+    if (!address) {
+      address = get().userAddress || ROOM_MANAGER_ADDRESS;
+    }
+
     try {
       // Fetch all questions
       const questions: Question[] = [];

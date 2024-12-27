@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import '../styles/morphingGradientBackground.css';
+import React, { useEffect, useRef } from "react";
+import "../styles/morphingGradientBackground.css";
 
 export function MorphingGradientBackground() {
   const interactiveRef = useRef<HTMLDivElement | null>(null);
@@ -16,7 +16,9 @@ export function MorphingGradientBackground() {
       curX += (tgX - curX) / 20;
       curY += (tgY - curY) / 20;
       if (interBubble) {
-        interBubble.style.transform = `translate(${Math.round(curX)}px, ${Math.round(curY)}px)`;
+        interBubble.style.transform = `translate(${Math.round(
+          curX
+        )}px, ${Math.round(curY)}px)`;
       }
       requestAnimationFrame(move);
     };
@@ -26,21 +28,25 @@ export function MorphingGradientBackground() {
       tgY = event.clientY;
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove);
     move();
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener("mousemove", handleMouseMove);
     };
   }, []);
 
   return (
-    <div className="gradient-bg -z-10 absolute">
+    <div className="fixed gradient-bg -z-10 opacity-30">
       {/* SVG filter */}
       <svg xmlns="http://www.w3.org/2000/svg">
         <defs>
           <filter id="goo">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+            <feGaussianBlur
+              in="SourceGraphic"
+              stdDeviation="10"
+              result="blur"
+            />
             <feColorMatrix
               in="blur"
               mode="matrix"
@@ -64,4 +70,4 @@ export function MorphingGradientBackground() {
       </div>
     </div>
   );
-};
+}

@@ -38,7 +38,7 @@ export function QuestionList({ isAdmin = false, roomId, address }: QuestionListP
         />
       ))}
       {questions.length === 0 && (
-        <div className="text-center text-gray-500 py-8">
+        <div className="text-center text-slate-50 py-8">
           No questions yet. Be the first to ask!
         </div>
       )}

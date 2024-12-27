@@ -4,6 +4,7 @@ import { RoomJoin } from "../components/RoomJoin";
 import { Header } from "../components/layout/Header";
 import { useRoomStore } from "../store/useRoomStore";
 import { useWeb3Store } from "../store/useWeb3Store";
+import { MorphingGradientBackground } from "../components/MorphingGradientBackground";
 
 export function HomePage() {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ export function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Header
         title="Q&A Platform"
         onLoginClick={() => {
@@ -29,10 +30,10 @@ export function HomePage() {
 
       <main className="max-w-7xl mx-auto px-4 py-16">
         <div className="grid md:grid-cols-2 gap-12">
-          <div className="space-y-6">
-            <h2 className="text-3xl font-bold">Create a New Room</h2>
-            <p className="text-gray-600">
-              Start a new Q&A session and share the link with your audience.
+          <div className="space-y-6 bg-white bg-opacity-10 backdrop-blur-lg p-8 rounded-lg hover:bg-opacity-15">
+            <h2 className="text-3xl font-bold text-slate-50">Create a New Room</h2>
+            <p className="text-slate-300">
+              Start a new Q&A session and share the link with your audience
             </p>
             <button
               onClick={handleCreateRoom}
@@ -44,7 +45,7 @@ export function HomePage() {
             </button>
           </div>
 
-          <div className="bg-white p-8 rounded-lg shadow-sm">
+          <div className="bg-white text-slate-50 bg-opacity-10 hover:bg-opacity-15 backdrop-blur-lg p-8 rounded-lg shadow-sm">
             <RoomJoin />
           </div>
         </div>
@@ -59,6 +60,7 @@ export function HomePage() {
           </div>
         )}
       </main>
+      <MorphingGradientBackground />
     </div>
   );
 }
