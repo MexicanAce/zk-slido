@@ -35,45 +35,34 @@ export function QuestionCard({
   return (
     <div
       className={cn(
-        "bg-white rounded-lg p-4 shadow-sm border transition-all relative",
-        question.isAnswered && "bg-gray-50 border-green-200"
+        "bg-slate-800 rounded-lg p-3 shadow-sm border border-gray-300 transition-all relative bg-opacity-60 backdrop-blur-xl hover:border-gray-50 hover:bg-opacity-90",
+        question.isAnswered && "bg-gray-900 border-green-700"
       )}
     >
       {isLoading && (
-        <div className="absolute w-full h-full left-0 top-0 bg-gray-300 opacity-70"></div>
+        <div className="absolute w-full h-full left-0 top-0 bg-slate-500 bg-opacity-35 bg-gradient- rounded-lg"></div>
       )}
       <div className="flex items-start justify-between gap-4">
-        <div className="flex-1">
+        <div
+          className={cn(
+            "flex-1",
+            question.isAnswered ? "text-gray-600" : "text-gray-400"
+          )}
+        >
           <div className="flex mb-4 items-center">
-            <CircleUserRound
-              size={34}
-              className={cn(
-                "mr-2",
-                question.isAnswered ? "text-gray-200" : "text-gray-300"
-              )}
-            />
+            <CircleUserRound size={28} className="mr-2" />
             <div className="flex flex-col">
-              <span
-                className={`text-sm font-bold ${
-                  question.isAnswered ? "text-gray-300" : "text-gray-500"
-                }`}
-              >
+              <span className="text-xs font-bold">
                 {shortenAddress(question.authorId)}
               </span>
-              <span
-                className={`text-xs ${
-                  question.isAnswered ? "text-gray-300" : "text-gray-500"
-                }`}
-              >
-                {timeAgo(question.createDate)}
-              </span>
+              <span className="text-xs">{timeAgo(question.createDate)}</span>
             </div>
           </div>
           <p
             hidden={displayEdit}
             className={cn(
-              "whitespace-pre text-lg text-pretty",
-              question.isAnswered ? "text-gray-300" : "text-gray-900"
+              "whitespace-pre text text-pretty break-all",
+              !question.isAnswered && "text-slate-50"
             )}
           >
             {question.content}
@@ -91,38 +80,37 @@ export function QuestionCard({
           />
         </div>
         <div className="flex flex-col justify-between h-full">
-          <div className="flex gap-0.5 items-center">
+          <div
+            className={cn(
+              "flex gap-0.5 items-center",
+              question.isAnswered ? "text-gray-600" : "text-slate-50"
+            )}
+          >
             <button
               onClick={() => vote(roomId, +question.id, true)}
               disabled={question.isAnswered}
-              className={`p-1 hover:text-blue-500 transition-colors disabled:text-gray-300 disabled:cursor-not-allowed ${
+              className={cn(
+                "p-1 hover:text-blue-500 transition-colors disabled:text-inherit disabled:cursor-not-allowed",
                 question.isUpvoted ? "text-blue-500" : ""
-              }`}
+              )}
             >
               <ThumbsUp size={18} />
             </button>
-            <span
-              className={`w-4 mr-3 font-medium text-left ${
-                question.isAnswered ? "text-gray-300" : ""
-              }`}
-            >
-              {question.upvotes > 0 && '+'}
+            <span className="w-4 mr-3 font-medium text-left">
+              {question.upvotes > 0 && "+"}
               {question.upvotes}
             </span>
-            <span
-              className={`w-4 text-right font-medium ${
-                question.isAnswered ? "text-gray-300" : ""
-              }`}
-            >
-              {question.downvotes > 0 && '-'}
+            <span className="w-4 text-right font-medium">
+              {question.downvotes > 0 && "-"}
               {question.downvotes}
             </span>
             <button
               onClick={() => vote(roomId, +question.id, false)}
               disabled={question.isAnswered}
-              className={`p-1 hover:text-red-500 transition-colors disabled:text-gray-300 disabled:cursor-not-allowed ${
+              className={cn(
+                "p-1 hover:text-red-500 transition-colors disabled:text-inherit disabled:cursor-not-allowed ",
                 question.isDownvoted ? "text-red-500" : ""
-              }`}
+              )}
             >
               <ThumbsDown size={18} />
             </button>
@@ -147,7 +135,7 @@ export function QuestionCard({
                   onClick={() => setDisplayEdit(!displayEdit)}
                   hidden={displayEdit}
                   disabled={question.isAnswered && !isAdmin}
-                  className="p-1 transition-colors text-gray-400 hover:text-gray-800 disabled:cursor-not-allowed"
+                  className="p-1 transition-colors text-gray-400 hover:text-gray-200 disabled:cursor-not-allowed"
                 >
                   <Pencil size={18} />
                 </button>
@@ -155,7 +143,7 @@ export function QuestionCard({
                   onClick={() => setDisplayEdit(!displayEdit)}
                   hidden={!displayEdit}
                   disabled={question.isAnswered && !isAdmin}
-                  className="p-1 transition-colors text-gray-400 hover:text-gray-800 disabled:cursor-not-allowed"
+                  className="p-1 transition-colors text-gray-400 hover:text-gray-200 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>

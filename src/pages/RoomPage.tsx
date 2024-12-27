@@ -11,6 +11,7 @@ import { useQuestions } from "../hooks/useQuestions";
 import { PlusCircle, RefreshCw } from "lucide-react";
 import { shortenAddress } from "../utils/misc";
 import { AddAdminModal } from "../components/AddAdminModal";
+import { MorphingGradientBackground } from "../components/MorphingGradientBackground";
 
 export function RoomPage() {
   const { roomId } = useParams<{ roomId: string }>();
@@ -43,7 +44,7 @@ export function RoomPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Header
         title="Q&A Platform"
         onLoginClick={async () => {
@@ -53,7 +54,7 @@ export function RoomPage() {
 
       <main className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex flex-col items-center gap-6">
-          <div className="flex flex-col items-center gap-3">
+          <div className="flex flex-col items-center gap-3 text-slate-50">
             <div className="flex items-center">
               <h1 className="font-bold text-2xl">
                 {`Room ${shortenAddress(roomId)}`}
@@ -68,7 +69,7 @@ export function RoomPage() {
               <div className="relative flex justify-center">
                 <button
                   onClick={onShareClicked}
-                  className="border py-1 px-4 ml-4 rounded-md transition-colors hover:bg-blue-300 disabled:cursor-not-allowed"
+                  className="border py-1 px-4 ml-4 rounded-md transition-colors hover:bg-blue-600 disabled:cursor-not-allowed"
                 >
                   Share
                 </button>
@@ -89,7 +90,7 @@ export function RoomPage() {
                   <PlusCircle
                     size={20}
                     onClick={() => setIsAddAdminModalOpen(true)}
-                    className={`ml-2 text-green-600 hover:cursor-pointer`}
+                    className={`ml-2 text-green-400 hover:cursor-pointer`}
                   />
                 )}
               </div>
@@ -100,9 +101,7 @@ export function RoomPage() {
             <div className="text-center text-red-600">
               {error}
               {error?.endsWith("invalid session") && (
-                <span
-                  className="ml-1.5 italic text-slate-600"
-                >
+                <span className="ml-1.5 italic">
                   (Please disconnect & login)
                 </span>
               )}
@@ -124,6 +123,7 @@ export function RoomPage() {
           onClose={() => setIsAddAdminModalOpen(false)}
         />
       </main>
+      <MorphingGradientBackground />
     </div>
   );
 }
