@@ -29,7 +29,7 @@ export const SSO_INVALID_SESSION_ERRORS = [
 
 export const isSessionInvalid = (errorMessage: string): boolean => {
   return (
-    SSO_INVALID_SESSION_ERRORS.find((x) => errorMessage.includes(x)) !=
+    SSO_INVALID_SESSION_ERRORS.find((x) => errorMessage && errorMessage.includes(x)) !=
     undefined
   );
 }
@@ -54,6 +54,11 @@ const connector = zksyncSsoConnector({
         address: ROOM_MANAGER_ADDRESS,
         abi: ROOM_MANAGER_ABI,
         functionName: "addAdmin",
+      }),
+      callPolicy({
+        address: ROOM_MANAGER_ADDRESS,
+        abi: ROOM_MANAGER_ABI,
+        functionName: "updateRoomName",
       }),
       callPolicy({
         address: ROOM_MANAGER_ADDRESS,

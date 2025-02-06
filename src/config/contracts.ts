@@ -3,7 +3,7 @@ import { type Address } from "viem";
 export const ROOM_MANAGER_ADDRESS =
   "0x462057041505219a9f4b2F4dAC794023b2a4205a" as Address;
 export const ROOM_MANAGER_PAYMASTER_ADDRESS =
-  "0x1F23dC88380cdc64Af4c019dB7d160AdFEFB10ed" as Address;
+  "0xDE273153980DC135F74DCA3aCE5b870f6D7bb56c" as Address;
 
 export const ROOM_MANAGER_ABI = [
   {
@@ -196,6 +196,26 @@ export const ROOM_MANAGER_ABI = [
       },
     ],
     name: "RoomCreated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "roomId",
+        type: "bytes32",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "admin",
+        type: "address",
+      },
+      { indexed: false, internalType: "string", name: "name", type: "string" },
+    ],
+    name: "RoomNameUpdated",
     type: "event",
   },
   {
@@ -411,6 +431,16 @@ export const ROOM_MANAGER_ABI = [
       { internalType: "address", name: "_user", type: "address" },
     ],
     name: "unbanUser",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      { internalType: "bytes32", name: "_roomId", type: "bytes32" },
+      { internalType: "string", name: "_name", type: "string" },
+    ],
+    name: "updateRoomName",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

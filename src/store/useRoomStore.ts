@@ -15,6 +15,7 @@ import { getGeneralPaymasterInput } from "viem/zksync";
 
 interface RoomStore {
   currentRoomId: string | null;
+  currentRoomName: string;
   admins: string[];
   isAdmin: boolean;
   isLoading: boolean;
@@ -24,10 +25,12 @@ interface RoomStore {
   setCurrentRoom: (roomId: string) => Promise<void>;
   checkIsAdmin: (roomId: string, address: string) => Promise<void>;
   addAdmin: (roomId: string, address: string) => Promise<void>;
+  updateRoomName: (roomId: string, name: string) => Promise<void>;
 }
 
 export const useRoomStore = create<RoomStore>((set) => ({
   currentRoomId: null,
+  currentRoomName: "",
   admins: [],
   isAdmin: false,
   isLoading: false,
@@ -55,7 +58,7 @@ export const useRoomStore = create<RoomStore>((set) => ({
       if (receipt.logs[2]) {
         console.log(receipt.logs);
         const roomId = receipt.logs[2].topics[1];
-        set({ currentRoomId: roomId, isAdmin: true });
+        set({ currentRoomId: roomId, isAdmin: true, currentRoomName: name });
       }
       set({ isLoading: false });
     } catch (error) {
@@ -72,7 +75,14 @@ export const useRoomStore = create<RoomStore>((set) => ({
   },
 
   setCurrentRoom: async (roomId: string) => {
-    set({ currentRoomId: roomId });
+    const room = await readContract(config, {
+      address: ROOM_MANAGER_ADDRESS as Address,
+      abi: ROOM_MANAGER_ABI,
+      functionName: "getRoom",
+      args: [roomId as `0x${string}`],
+    });
+
+    set({ currentRoomId: roomId, currentRoomName: room.name });
   },
 
   checkIsAdmin: async (roomId: string, address: string) => {
@@ -86,14 +96,55 @@ export const useRoomStore = create<RoomStore>((set) => ({
         args: [roomId as `0x${string}`],
       });
 
-      console.log(room);
-
       const isAdmin = room.admins.includes(address as `0x${string}`);
 
       set({ isAdmin: isAdmin, admins: room.admins as `0x${string}`[] });
     } catch (error) {
       console.error("Failed to check admin status:", error);
       set({ isAdmin: false, admins: [] });
+    }
+  },
+
+  updateRoomName: async (roomId: string, name: string) => {
+    if (!name || !roomId) return;
+
+    set({ isLoading: true, error: null });
+    try {
+      const hash = await writeContract(config, {
+        address: ROOM_MANAGER_ADDRESS,
+        abi: ROOM_MANAGER_ABI,
+        functionName: "updateRoomName",
+        args: [roomId as `0x${string}`, name],
+        paymaster: ROOM_MANAGER_PAYMASTER_ADDRESS,
+        paymasterInput: getGeneralPaymasterInput({ innerInput: "0x" }),
+      });
+
+      const receipt = await waitForTransactionReceipt(config, { hash });
+      if (receipt.status === "reverted") {
+        throw new Error("Transaction reverted");
+      }
+
+      const room = await readContract(config, {
+        address: ROOM_MANAGER_ADDRESS as Address,
+        abi: ROOM_MANAGER_ABI,
+        functionName: "getRoom",
+        args: [roomId as `0x${string}`],
+      });
+
+      set({
+        currentRoomName: room.name,
+        isLoading: false,
+      });
+    } catch (error) {
+      console.error("Failed to update room name:", error);
+      let displayError = "Failed to update room name";
+      if (
+        error instanceof ContractFunctionExecutionError &&
+        isSessionInvalid(error.cause.shortMessage)
+      ) {
+        displayError += " due to invalid session";
+      }
+      set({ isLoading: false, error: displayError });
     }
   },
 
@@ -141,7 +192,12 @@ export const useRoomStore = create<RoomStore>((set) => ({
       ) {
         displayError += " due to invalid session";
       }
-      set({ isAdmin: false, admins: [], isLoading: false, error: displayError });
+      set({
+        isAdmin: false,
+        admins: [],
+        isLoading: false,
+        error: displayError,
+      });
     }
   },
 }));

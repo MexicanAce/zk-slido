@@ -42,6 +42,7 @@ contract RoomManager is Initializable {
 
     event RoomCreated(bytes32 indexed roomId, string name, address admin);
     event AdminAdded(bytes32 indexed roomId, address newAdmin);
+    event RoomNameUpdated(bytes32 indexed roomId, address admin, string name);
     event UserBanned(bytes32 indexed roomId, address user);
     event UserUnbanned(bytes32 indexed roomId, address user);
     event QuestionAdded(bytes32 indexed roomId, uint256 indexed questionId, address author, string content);
@@ -96,6 +97,15 @@ contract RoomManager is Initializable {
 
         rooms[_roomId].admins.push(_newAdmin);
         emit AdminAdded(_roomId, _newAdmin);
+    }
+
+    function updateRoomName(bytes32 _roomId, string memory _name) external onlyAdmin(_roomId) {
+        // Convert the string to bytes to measure its length
+        uint256 nameLength = bytes(_name).length;
+        require(nameLength > 5 && nameLength < 120, "Invalid name length");
+
+        rooms[_roomId].name = _name;
+        emit RoomNameUpdated(_roomId, msg.sender, _name);
     }
 
     function banUser(bytes32 _roomId, address _user) external onlyAdmin(_roomId) {

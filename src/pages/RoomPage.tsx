@@ -8,21 +8,31 @@ import { useRoomStore } from "../store/useRoomStore";
 import { useRoomAdmin } from "../hooks/useRoomAdmin";
 import { useRoomSetup } from "../hooks/useRoomSetup";
 import { useQuestions } from "../hooks/useQuestions";
-import { PlusCircle, RefreshCw } from "lucide-react";
+import { PencilIcon, PlusCircle, RefreshCw, SaveIcon } from "lucide-react";
 import { shortenAddress } from "../utils/misc";
 import { AddAdminModal } from "../components/AddAdminModal";
 import { MorphingGradientBackground } from "../components/MorphingGradientBackground";
+import { cn } from "../utils/cn";
 
 export function RoomPage() {
   const { roomId } = useParams<{ roomId: string }>();
-  const [displayShareSuccess, setDisplayShareSuccess] = useState(false);
   const { address, connect } = useWeb3Store();
-  const { admins, isAdmin, checkIsAdmin } = useRoomStore();
+  const {
+    admins,
+    isAdmin,
+    currentRoomName,
+    checkIsAdmin,
+    updateRoomName,
+    isLoading: isRoomLoading,
+  } = useRoomStore();
   const { isLoading, error, refresh } = useQuestions(roomId);
-  const [isAddAdminModalOpen, setIsAddAdminModalOpen] = useState(false);
-
   useRoomSetup(roomId);
   useRoomAdmin(roomId);
+
+  const [displayShareSuccess, setDisplayShareSuccess] = useState(false);
+  const [displayEditNameInput, setDisplayEditNameInput] = useState(false);
+  const [isAddAdminModalOpen, setIsAddAdminModalOpen] = useState(false);
+  const [newRoomName, setNewRoomName] = useState("");
 
   if (!roomId) {
     return <Navigate to="/" replace />;
@@ -39,8 +49,14 @@ export function RoomPage() {
       setDisplayShareSuccess(false);
     }, 2000);
   }
-  async function onRefreshClicked() {
-    // TODO: Request a new session
+
+  async function onSaveNewRoomName() {
+    if (isLoading) return;
+
+    if (currentRoomName !== newRoomName) {
+      await updateRoomName(roomId!, newRoomName);
+    }
+    setDisplayEditNameInput(false);
   }
 
   return (
@@ -56,15 +72,48 @@ export function RoomPage() {
         <div className="flex flex-col items-center gap-6">
           <div className="flex flex-col items-center gap-3 text-slate-50">
             <div className="flex items-center">
-              <h1 className="font-bold text-2xl">
-                {`Room ${shortenAddress(roomId)}`}
-              </h1>
+              {displayEditNameInput && (
+                <input
+                  type="text"
+                  name="roomName"
+                  minLength={6}
+                  maxLength={110}
+                  className="bg-transparent text-slate-50 text-2xl font-bold caret-slate-50 border rounded-md px-1 py-0.5 focus:outline-none invalid:border-red-400"
+                  value={newRoomName}
+                  disabled={isRoomLoading}
+                  onChange={(e) => setNewRoomName(e.target.value)}
+                />
+              )}
+              {!displayEditNameInput && (
+                <h1 className="font-bold text-2xl">{currentRoomName}</h1>
+              )}
+              {isAdmin && !displayEditNameInput && (
+                <PencilIcon
+                  size={20}
+                  onClick={() => {
+                    setNewRoomName(currentRoomName);
+                    setDisplayEditNameInput((x) => !x);
+                  }}
+                  className="ml-4 hover:cursor-pointer"
+                />
+              )}
+              {isAdmin && displayEditNameInput && (
+                <SaveIcon
+                  size={20}
+                  onClick={onSaveNewRoomName}
+                  className={cn(
+                    "ml-4 hover:cursor-pointer",
+                    isRoomLoading && "hover:cursor-not-allowed text-gray-500"
+                  )}
+                />
+              )}
               <RefreshCw
                 size={20}
                 onClick={refresh}
-                className={`ml-4 hover:cursor-pointer ${
-                  isLoading ? "animate-spin" : ""
-                }`}
+                className={cn(
+                  "ml-4 hover:cursor-pointer",
+                  isLoading && "animate-spin"
+                )}
               />
               <div className="relative flex justify-center">
                 <button

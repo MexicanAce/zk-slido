@@ -15,6 +15,7 @@ contract RoomManagerPaymaster is IPaymaster, Ownable {
   address public CONTRACT_ADDRESS;
   bytes4 public constant CREATE_ROOM_SELECTOR = bytes4(keccak256("createRoom(string)"));
   bytes4 public constant ADD_ADMIN_SELECTOR = bytes4(keccak256("addAdmin(bytes32,address)"));
+  bytes4 public constant UPDATE_ROOM_NAME_SELECTOR = bytes4(keccak256("updateRoomName(bytes32,string)"));
   bytes4 public constant ADD_QUESTION_SELECTOR = bytes4(keccak256("addQuestion(bytes32,string)"));
   bytes4 public constant VOTE_QUESTION_SELECTOR = bytes4(keccak256("voteQuestion(bytes32,uint256,bool)"));
   bytes4 public constant EDIT_QUESTION_SELECTOR = bytes4(keccak256("editQuestion(bytes32,uint256,string)"));
@@ -52,6 +53,7 @@ contract RoomManagerPaymaster is IPaymaster, Ownable {
     require(
       methodSelector == CREATE_ROOM_SELECTOR ||
         methodSelector == ADD_ADMIN_SELECTOR ||
+        methodSelector == UPDATE_ROOM_NAME_SELECTOR ||
         methodSelector == ADD_QUESTION_SELECTOR ||
         methodSelector == VOTE_QUESTION_SELECTOR ||
         methodSelector == EDIT_QUESTION_SELECTOR ||
