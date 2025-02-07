@@ -101,8 +101,7 @@ contract RoomManager is Initializable {
 
     function updateRoomName(bytes32 _roomId, string memory _name) external onlyAdmin(_roomId) {
         // Convert the string to bytes to measure its length
-        uint256 nameLength = bytes(_name).length;
-        require(nameLength > 5 && nameLength < 120, "Invalid name length");
+        require(bytes(_name).length < 200, "Name too long");
 
         rooms[_roomId].name = _name;
         emit RoomNameUpdated(_roomId, msg.sender, _name);

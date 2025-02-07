@@ -12,6 +12,7 @@ import {
 import { ContractFunctionExecutionError, type Address } from "viem";
 import { config, isSessionInvalid } from "./useWeb3Store";
 import { getGeneralPaymasterInput } from "viem/zksync";
+import { decryptWithPrivateKey, encryptWithPrivateKey } from "../utils/encrypt";
 
 interface RoomStore {
   currentRoomId: string | null;
@@ -82,7 +83,10 @@ export const useRoomStore = create<RoomStore>((set) => ({
       args: [roomId as `0x${string}`],
     });
 
-    set({ currentRoomId: roomId, currentRoomName: room.name });
+    set({
+      currentRoomId: roomId,
+      currentRoomName: await decryptWithPrivateKey(roomId, room.name),
+    });
   },
 
   checkIsAdmin: async (roomId: string, address: string) => {
@@ -110,11 +114,12 @@ export const useRoomStore = create<RoomStore>((set) => ({
 
     set({ isLoading: true, error: null });
     try {
+      const encryptedName = await encryptWithPrivateKey(roomId, name);
       const hash = await writeContract(config, {
         address: ROOM_MANAGER_ADDRESS,
         abi: ROOM_MANAGER_ABI,
         functionName: "updateRoomName",
-        args: [roomId as `0x${string}`, name],
+        args: [roomId as `0x${string}`, encryptedName],
         paymaster: ROOM_MANAGER_PAYMASTER_ADDRESS,
         paymasterInput: getGeneralPaymasterInput({ innerInput: "0x" }),
       });
@@ -132,7 +137,7 @@ export const useRoomStore = create<RoomStore>((set) => ({
       });
 
       set({
-        currentRoomName: room.name,
+        currentRoomName: await decryptWithPrivateKey(roomId, room.name),
         isLoading: false,
       });
     } catch (error) {

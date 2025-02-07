@@ -77,7 +77,7 @@ export function RoomPage() {
                   type="text"
                   name="roomName"
                   minLength={6}
-                  maxLength={110}
+                  maxLength={60}
                   className="bg-transparent text-slate-50 text-2xl font-bold caret-slate-50 border rounded-md px-1 py-0.5 focus:outline-none invalid:border-red-400"
                   value={newRoomName}
                   disabled={isRoomLoading}
