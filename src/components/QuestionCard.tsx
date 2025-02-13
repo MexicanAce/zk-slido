@@ -61,7 +61,7 @@ export function QuestionCard({
           <p
             hidden={displayEdit}
             className={cn(
-              "whitespace-pre text text-pretty break-all",
+              "whitespace-pre text text-pretty break-words",
               !question.isAnswered && "text-slate-50"
             )}
           >
